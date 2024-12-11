@@ -90,27 +90,27 @@ if (!formExists) {
 
     ref={(e)=>formRef=e}
       onSubmit={onFormSubmit}
-    className='border rounded-lg p-5 md:w-[600px] 'data-theme={selectedTheme}><h2 className='font-bold text-center text-2xl'>{jsonform?.title}</h2>
-    <h2 className='text-sm text-gray-400 text-center'>{jsonform?.subheading}</h2>
-    {jsonform && jsonform.form && Array.isArray(jsonform?.form) ? (
-  jsonform.form.map((field, index) => (
+    className='border rounded-lg p-5 md:w-[600px] 'data-theme={selectedTheme}><h2 className='font-bold text-center text-2xl'>{jsonform?.formTitle}</h2>
+    <h2 className='text-sm text-gray-400 text-center'>{jsonform?.formSubheading}</h2>
+    {jsonform && jsonform.formFields && Array.isArray(jsonform?.formFields) ? (
+  jsonform.formFields.map((field, index) => (
     <div key={index} className=' '>
       <div className=' px-1 py-1'>
-        <label className='text-sm text-gray-600'>{field.label}</label>
-        {field.type === 'select' ? (
-          <Select onValueChange={(v)=>handleSelect(field.name,v)}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={field.placeholder} />
-            </SelectTrigger>
-            <SelectContent>
-              {Array.isArray(field.options) &&
-                field.options.map((option, optIndex) => (
-                  <SelectItem key={optIndex} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
+        <label className='text-sm text-gray-600'>{field.fieldLabel}</label>
+       {field.fieldType === 'select' ? (
+  <Select onValueChange={(value) => handleSelect(field.fieldLabel, value)}>
+    <SelectTrigger className="w-full">
+      <SelectValue placeholder={field.placeholder || "Select an option"} />
+    </SelectTrigger>
+    <SelectContent>
+      {Array.isArray(field.options) &&
+        field.options.map((option, optIndex) => (
+          <SelectItem key={optIndex} value={option}>
+            {option}
+          </SelectItem>
+        ))}
+    </SelectContent>
+  </Select>
         ) : field.type === 'radio' ? (
           <RadioGroup defaultValue={field.options[0].value}  value={field.options.value}
           onValueChange={(value) => handleSelect(field.name, value)}   >
@@ -135,6 +135,15 @@ if (!formExists) {
                 </div>
               ))}
           </div>
+        ) : field.type === 'date' ? (
+         <Input type ={field.fieldType}
+           name ={field.fieldLabel}
+           placeholder={field.placeholder}
+           onChange={(e)=>handleInputChange(e)}
+
+         />
+        ) : field.type === 'file' ? (
+          <Input type={field.type} name={field.fieldName} onChange={(e)=>handleInputChange(e)} />
         ) : (
           <Input type={field.type} placeholder={field.placeholder} name={field.name} onChange={(e)=>handleInputChange(e)} />
         )}
@@ -155,4 +164,3 @@ if (!formExists) {
 }
 
 export default FormUi
-

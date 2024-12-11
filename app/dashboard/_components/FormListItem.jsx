@@ -58,16 +58,16 @@ export default function FormListItem({form,id,refreshData}) {
     </AlertDialog>
         </div>
         <h2 className='text-lg text-black'>
-          {form?.title}
+          {form?.formTitle}
         </h2>
-        <h2 className='text-sm text-gray-500'>{form?.subheading}</h2>
+        <h2 className='text-sm text-gray-500'>{form?.formSubheading}</h2>
         <hr className='my-4'></hr>
         <div className='flex justify-between'>
         <RWebShare
         data={{
-          text: form?.subheading+" ,Build your Form in seconds",
+          text: form?.formSubheading+" ,Build your Form in seconds",
           url: process.env.NEXT_PUBLIC_BASE_URL+"/aiform/"+id?.id,
-          title: form?.title,
+          title: form?.formTitle,
         }}
         onClick={() => console.log("shared successfully!")}
       >
