@@ -53,26 +53,30 @@ function EditForm({params}) {
     }
    },[updateTrigger])
   const onFieldUpdate=(value,index)=>{
-     jsonform.form[index].label=value.label;
-     jsonform.form[index].placeholder=value.placeholder
-     toast.success('Updated!!!');
-     setTrigger(Date.now());
+     if (jsonform && jsonform.formFields && jsonform.formFields[index]) {
+       jsonform.formFields[index].fieldLabel=value.fieldLabel;
+       jsonform.formFields[index].placeholder=value.placeholder;
+       toast.success('Updated!!!');
+       setTrigger(Date.now());
+     }
   }
   const UpdateFormDb=async()=>{
     const result=await db.update(JsonForms)
     .set({
-      jsonForm:jsonform
+      jsonForm:JSON.stringify(jsonform)
     }).where(and(eq(JsonForms.id,record.id),eq(JsonForms.CreatedBy,user?.primaryEmailAddress?.emailAddress)))
     .returning({id:JsonForms.id})
-   
+
     console.log(result);
   }
 
   const deleteField=(indexto)=>{
-    const res=jsonform.form.filter((item,index)=>index!=indexto)
-   jsonform.form=res;
-   toast.error('deleted!!!');
-   setTrigger(Date.now())
+    if (jsonform && jsonform.formFields) {
+      const res=jsonform.formFields.filter((item,index)=>index!=indexto)
+      jsonform.formFields=res;
+      toast.error('deleted!!!');
+      setTrigger(Date.now())
+    }
   }
   const updateValue=async(value,columnName)=>{
     const result=await db.update(JsonForms)
@@ -100,9 +104,9 @@ function EditForm({params}) {
               </Link>
               <RWebShare
         data={{
-          text: jsonform?.subheading+" ,Build your Form in seconds",
+          text: jsonform?.formSubheading+" ,Build your Form in seconds",
           url: process.env.NEXT_PUBLIC_BASE_URL+"/aiform/"+record?.id,
-          title: jsonform?.title,
+          title: jsonform?.formTitle,
         }}
         onClick={() => console.log("shared successfully!")}
       >

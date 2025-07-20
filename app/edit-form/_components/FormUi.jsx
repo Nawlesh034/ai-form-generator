@@ -61,21 +61,19 @@ function FormUi({jsonform,selectedTheme,onFieldUpdate,deleteField,editable=true,
  
 
     const formExists = await db.select().from(JsonForms)
-    
-    .where(eq(JsonForms.id), formId)
-    
+    .where(eq(JsonForms.id, formId));
 
-if (!formExists) {
-    toast('Form ID does not exist!');
-    return;
-}
+    if (!formExists || formExists.length === 0) {
+        toast('Form ID does not exist!');
+        return;
+    }
    
     const result=await db.insert(userResponse)
     .values({
-      jsonResponse:formData,
-      CreatedAt: moment().format('YYYY-MM-DD'),
+      jsonResponse:JSON.stringify(formData),
+      CreatedAt: moment().format('DD/MM/yyyy'),
       refForm:formId,
-    }).execute()
+    })
     console.log(formId)
     if(result){
       formRef.reset();
@@ -111,41 +109,43 @@ if (!formExists) {
         ))}
     </SelectContent>
   </Select>
-        ) : field.type === 'radio' ? (
-          <RadioGroup defaultValue={field.options[0].value}  value={field.options.value}
-          onValueChange={(value) => handleSelect(field.name, value)}   >
+        ) : field.fieldType === 'radio' ? (
+          <RadioGroup defaultValue={field.options?.[0]?.value}
+          onValueChange={(value) => handleSelect(field.fieldName, value)}   >
             {Array.isArray(field.options) &&
               field.options.map((option, optIndex) => (
                 <div key={optIndex} className='flex items-center space-x-2'>
-                  <RadioGroupItem value={option.value} id={`option-${index}-${optIndex}`}  />
-                  <Label htmlFor={`option-${index}-${optIndex}`}>{option.label}</Label>
+                  <RadioGroupItem value={option} id={`option-${index}-${optIndex}`}  />
+                  <Label htmlFor={`option-${index}-${optIndex}`}>{option}</Label>
                 </div>
               ))}
           </RadioGroup>
-        ) : field.type === 'checkbox' ? (
+        ) : field.fieldType === 'checkbox' ? (
           <div>
-            <Checkbox id={`checkbox-${index}`} value={field.type} onCheckedChange={(v)=>handleCheckboxChange(field.label,field.type,v)} 
-                     />
-            <Label htmlFor={`checkbox-${index}`}>{field.label}</Label>
-            {Array.isArray(field.options) &&
+            {Array.isArray(field.options) ? (
               field.options.map((option, optIndex) => (
                 <div key={optIndex} className='flex items-center space-x-2'>
-                  <Checkbox id={`checkbox-${index}-${optIndex}`} value={option.value} onCheckedChange={(v)=>handleCheckboxChange(field.label,option.label,v)} />
-                  <Label htmlFor={`checkbox-${index}-${optIndex}`}>{option.label}</Label>
+                  <Checkbox id={`checkbox-${index}-${optIndex}`} value={option} onCheckedChange={(v)=>handleCheckboxChange(field.fieldName, option, v)} />
+                  <Label htmlFor={`checkbox-${index}-${optIndex}`}>{option}</Label>
                 </div>
-              ))}
+              ))
+            ) : (
+              <div className='flex items-center space-x-2'>
+                <Checkbox id={`checkbox-${index}`} onCheckedChange={(v)=>handleCheckboxChange(field.fieldName, field.fieldLabel, v)} />
+                <Label htmlFor={`checkbox-${index}`}>{field.fieldLabel}</Label>
+              </div>
+            )}
           </div>
-        ) : field.type === 'date' ? (
-         <Input type ={field.fieldType}
-           name ={field.fieldLabel}
+        ) : field.fieldType === 'date' ? (
+         <Input type={field.fieldType}
+           name={field.fieldName}
            placeholder={field.placeholder}
            onChange={(e)=>handleInputChange(e)}
-
          />
-        ) : field.type === 'file' ? (
-          <Input type={field.type} name={field.fieldName} onChange={(e)=>handleInputChange(e)} />
+        ) : field.fieldType === 'file' ? (
+          <Input type={field.fieldType} name={field.fieldName} onChange={(e)=>handleInputChange(e)} />
         ) : (
-          <Input type={field.type} placeholder={field.placeholder} name={field.name} onChange={(e)=>handleInputChange(e)} />
+          <Input type={field.fieldType} placeholder={field.placeholder} name={field.fieldName} onChange={(e)=>handleInputChange(e)} />
         )}
       </div>
       {editable &&

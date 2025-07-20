@@ -22,7 +22,7 @@ import {
   
 
 function FieldEdit({defaultValue,onUpdate,deleteField}) {
-    const[label,setLabel]=useState(defaultValue?.label)
+    const[label,setLabel]=useState(defaultValue?.fieldLabel)
     const[placeholder,setPlaceholder]=useState(defaultValue?.placeholder)
   return (
     <div className='flex'><Popover>
@@ -31,7 +31,7 @@ function FieldEdit({defaultValue,onUpdate,deleteField}) {
     <div>
         <label>
             Label Name
-            <Input type='text' defaultValue={defaultValue.label} 
+            <Input type='text' defaultValue={defaultValue.fieldLabel}
              onChange={(e)=>setLabel(e.target.value)}
             />
         </label>
@@ -46,7 +46,7 @@ function FieldEdit({defaultValue,onUpdate,deleteField}) {
     </div>
     <div>
         <Button size='sm' onClick={()=>onUpdate({
-            label:label,
+            fieldLabel:label,
             placeholder:placeholder
         })}>
          Update

@@ -11,6 +11,7 @@ import FormListItem from './FormListItem'
 function FormList() {
     const {user}=useUser()
     const[formList,setFormList]=useState([]);
+    console.log(formList,"res")
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const extractJson = (rawText) => {
