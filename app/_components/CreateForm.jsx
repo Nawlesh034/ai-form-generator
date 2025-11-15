@@ -10,7 +10,7 @@ import {
   } from "@/components/ui/dialog"
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
-import { AiChat } from '@/config/AiModal'
+import  AiChat  from '@/config/AiModal'
 import { useUser } from '@clerk/nextjs'
 import { db } from '@/config'
 import { JsonForms } from '@/config/schema'
@@ -79,7 +79,7 @@ export default function CreateForm() {
         console.log(value);
         setloading(true);
        const result= await AiChat.sendMessage("Description:"+value+prompt);
-       console.log(result.response.text())
+       console.log(result.response.text(),"nawlesh")
        if(result.response.text()){
         const resp=await db.insert(JsonForms)
         .values({
