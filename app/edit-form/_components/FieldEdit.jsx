@@ -8,18 +8,8 @@ import {
   } from "@/components/ui/popover"
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-  } from "@/components/ui/alert-dialog"
-  
+import ConfirmDeleteDialog from '@/components/ConfirmDeleteDialog'
+
 
 function FieldEdit({defaultValue,onUpdate,deleteField}) {
     const[label,setLabel]=useState(defaultValue?.fieldLabel)
@@ -56,22 +46,11 @@ function FieldEdit({defaultValue,onUpdate,deleteField}) {
   </Popover>
 
 
-  <AlertDialog>
-  <AlertDialogTrigger>  <Trash className='text-red-500'/></AlertDialogTrigger>
-  <AlertDialogContent>
-    <AlertDialogHeader>
-      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-      <AlertDialogDescription>
-        This action cannot be undone. This will permanently delete your account
-        and remove your data from our servers.
-      </AlertDialogDescription>
-    </AlertDialogHeader>
-    <AlertDialogFooter>
-      <AlertDialogCancel>Cancel</AlertDialogCancel>
-      <AlertDialogAction onClick={()=>deleteField()}>Continue</AlertDialogAction>
-    </AlertDialogFooter>
-  </AlertDialogContent>
-</AlertDialog>
+  <ConfirmDeleteDialog
+    trigger={<Trash className='text-red-500'/>}
+    description="This action cannot be undone. This will permanently delete this field from your form."
+    onConfirm={()=>deleteField()}
+  />
   </div>
   )
 }

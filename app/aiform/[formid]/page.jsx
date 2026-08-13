@@ -6,28 +6,21 @@ import { eq } from 'drizzle-orm'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
+import { extractJson } from '@/lib/utils'
 
 function LiveAiForm({params}) {
     const [jsonform,setJsonForm]=useState();
     const[record,setRecord]=useState([]);
-   
+
     useEffect(()=>{
-        console.log(params,'id')
        params && getFormData();
     },[])
     const getFormData=async()=>{
         const result=await db.select().from(JsonForms)
         .where(eq(JsonForms.id,Number(params?.formid)))
-        console.log(result,'res')
-        const rawJson = result[0].jsonForm;
-        const jsonStartIndex = rawJson.indexOf('{');
-        const jsonEndIndex = rawJson.lastIndexOf('}') + 1;
-        const jsonString = rawJson.substring(jsonStartIndex, jsonEndIndex);
         setRecord(result[0]);
-        setJsonForm(JSON.parse(jsonString))
-
+        setJsonForm(extractJson(result[0].jsonForm))
     }
-    console.log(record.id,'love')
   return (
     <div className='p-10 flex justify-center items-center  h-screen text-black'><FormUi 
     jsonform={jsonform}

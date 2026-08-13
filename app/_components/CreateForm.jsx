@@ -76,17 +76,14 @@ export default function CreateForm() {
     const route=useRouter();
 
     const getValue=async()=>{
-        console.log(value);
         setloading(true);
        const result= await AiChat.sendMessage("Description:"+value+prompt);
-       console.log(result.response.text(),"nawlesh")
        if(result.response.text()){
         const resp=await db.insert(JsonForms)
         .values({
           jsonForm:result.response.text(),
           CreatedBy:user?.primaryEmailAddress?.emailAddress,
           CreatedAt:moment().format('DD/MM/yyyy')}).returning({id:JsonForms.id})
-        console.log(resp,"naw");
         if(resp[0].id){
           route.push('/edit-form/'+resp[0].id)
         }

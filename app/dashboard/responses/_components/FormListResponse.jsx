@@ -9,7 +9,6 @@ function FormListResponse({formRecord,jsonform}) {
 
     const[loading,setLoading]=useState(false)
     const { responses, responseCount, loading: loadingCount, error, refreshResponses } = useFormResponses(formRecord?.id);
-    console.log(jsonform,"nawlesh")
 
     const ExportData=async()=>{
         if (responseCount === 0) {

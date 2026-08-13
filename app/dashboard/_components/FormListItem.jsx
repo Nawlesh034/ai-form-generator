@@ -1,18 +1,8 @@
 import { Button } from '@/components/ui/button'
-import { Edit, Share2, Trash, Trash2 } from 'lucide-react'
+import { Edit, Share2, Trash } from 'lucide-react'
 import Link from 'next/link'
 import React from 'react'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+import ConfirmDeleteDialog from '@/components/ConfirmDeleteDialog'
 import { useUser } from '@clerk/nextjs'
 import { db } from '@/config'
 import { JsonForms } from '@/config/schema'
@@ -37,25 +27,11 @@ export default function FormListItem({form,id,refreshData}) {
   return (
     <div className='border shadow-sm rounded-lg p-4'>
         <div className='flex justify-end'>
-          
-          <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="outline"><h2 className='text-red-400'><Trash/></h2></Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction  onClick={()=>onDeleteForm()}>Continue</AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          <ConfirmDeleteDialog
+            trigger={<Button variant="outline"><h2 className='text-red-400'><Trash/></h2></Button>}
+            description="This action cannot be undone. This will permanently delete this form and its responses."
+            onConfirm={()=>onDeleteForm()}
+          />
         </div>
         <h2 className='text-lg text-black'>
           {form?.formTitle}

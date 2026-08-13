@@ -5,16 +5,12 @@ import { User2Icon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import React, { useEffect } from 'react'
-                                    
+import React from 'react'
+
 
 function Header() {
-  // to check wheather user login or not
-  const {user,isSignedIn}=useUser();
+  const {isSignedIn}=useUser();
   const path=usePathname();
-  useEffect(()=>{
-    console.log(path)
-  })
   return (!path.includes('aiform')&&(
     <div className='p-3 px-5 border-b shadow-sm'>
         <div className='flex justify-between items-center '>

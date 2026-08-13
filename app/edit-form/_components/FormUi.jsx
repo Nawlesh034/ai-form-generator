@@ -47,7 +47,7 @@ function FormUi({jsonform,selectedTheme,onFieldUpdate,deleteField,editable=true,
         [name]:list
       })
     }else{
-      const result=list.filter((item)=>item.label==option);
+      const result=list.filter((item)=>item.label!=option);
       setFormData({
         ...formData,
         [name]:result
@@ -57,8 +57,6 @@ function FormUi({jsonform,selectedTheme,onFieldUpdate,deleteField,editable=true,
   }
   const onFormSubmit=async(e)=>{
     e.preventDefault()
-    console.log(formData)
- 
 
     const formExists = await db.select().from(JsonForms)
     .where(eq(JsonForms.id, formId));
@@ -74,7 +72,6 @@ function FormUi({jsonform,selectedTheme,onFieldUpdate,deleteField,editable=true,
       CreatedAt: moment().format('DD/MM/yyyy'),
       refForm:formId,
     })
-    console.log(formId)
     if(result){
       formRef.reset();
       toast('Response Submitted Successfully!')

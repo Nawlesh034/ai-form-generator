@@ -13,6 +13,7 @@ import Controller from '../_components/Controller'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { RWebShare } from 'react-web-share'
+import { extractJson } from '@/lib/utils'
 
 function EditForm({params}) {
     const {user}=useUser()
@@ -31,21 +32,10 @@ function EditForm({params}) {
     const getData=async()=>{
         const result=await db.select().from(JsonForms)
         .where(and(eq(JsonForms.id, params?.formid),eq(JsonForms.CreatedBy, user?.primaryEmailAddress.emailAddress)))
-        
-        console.log(result,'kll')
-        
-        const rawJson = result[0].jsonForm;
-        const jsonStartIndex = rawJson.indexOf('{');
-        const jsonEndIndex = rawJson.lastIndexOf('}') + 1;
-        const jsonString = rawJson.substring(jsonStartIndex, jsonEndIndex);
-        const parsing=JSON.parse(jsonString)
-      //  console.log(JSON.parse(jsonString),'nand')
-       setRecord(result[0])
-       setJsonForm(parsing)
-       
 
+       setRecord(result[0])
+       setJsonForm(extractJson(result[0].jsonForm))
     }
-    console.log(jsonform,'nandff');
    useEffect(()=>{
     if(updateTrigger){
        setJsonForm(jsonform)
@@ -66,8 +56,6 @@ function EditForm({params}) {
       jsonForm:JSON.stringify(jsonform)
     }).where(and(eq(JsonForms.id,record.id),eq(JsonForms.CreatedBy,user?.primaryEmailAddress?.emailAddress)))
     .returning({id:JsonForms.id})
-
-    console.log(result);
   }
 
   const deleteField=(indexto)=>{
