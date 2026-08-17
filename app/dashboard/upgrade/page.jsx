@@ -3,6 +3,7 @@ import PricingPlan from '@/app/_data/PricingPlan'
 import { useUser } from '@clerk/nextjs';
 import { useSearchParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 function Upgrade() {
     const { user } = useUser();
@@ -13,19 +14,26 @@ function Upgrade() {
       if (searchParams.get('success') === 'true') {
         user?.reload();
       }
-    }, [searchParams, user]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams]);
 
     const startCheckout = async (priceId) => {
       setLoadingPriceId(priceId);
-      const res = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ priceId }),
-      });
-      const data = await res.json();
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
+      try {
+        const res = await fetch('/api/stripe/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ priceId }),
+        });
+        const data = await res.json();
+        if (data?.url) {
+          window.location.href = data.url;
+          return;
+        }
+        toast.error(data?.error || 'Could not start checkout. Please try again.');
+        setLoadingPriceId(null);
+      } catch (err) {
+        toast.error('Something went wrong. Please check your connection and try again.');
         setLoadingPriceId(null);
       }
     };
