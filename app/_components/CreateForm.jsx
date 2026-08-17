@@ -6,106 +6,59 @@ import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
   } from "@/components/ui/dialog"
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
-import  AiChat  from '@/config/AiModal'
-import { useUser } from '@clerk/nextjs'
-import { db } from '@/config'
-import { JsonForms } from '@/config/schema'
-import moment from 'moment/moment'
 import { useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
-  
-const prompt = `Please provide a form in JSON format based on the following structure:
-- **formTitle**: The title of the form (e.g., "User Registration")
-- **formSubheading**: A short description or instruction for the form (e.g., "Please fill out the form to register.")
-- **formFields**: An array of fields for the form, each field should include the following attributes:
-  - **fieldName**: The unique identifier for the field (e.g., "firstName", "email", "gender").
-  - **fieldLabel**: The label text to display above or beside the field (e.g., "First Name", "Email Address", "Gender").
-  - **placeholder**: The placeholder text for the input field (e.g., "Enter your first name", "Enter your email address").
-  - **fieldType**: The type of input field (e.g., "text", "email", "date", "select").
-  - **required**: Whether the field is mandatory (true or false).
-  - **options**: (Optional) Only for fields of type "select". This should be an array of options for the user to choose from (e.g., ["Male", "Female", "Other"]).
-
-### Example Format:
-- Field Name: \`"firstName"\`, Field Label: \`"First Name"\`, Placeholder: \`"Enter your first name"\`, Field Type: \`"text"\`, Required: \`true\`
-- Field Name: \`"email"\`, Field Label: \`"Email Address"\`, Placeholder: \`"Enter your email address"\`, Field Type: \`"email"\`, Required: \`true\`
-- Field Name: \`"gender"\`, Field Label: \`"Gender"\`, Placeholder: \`"Select your gender"\`, Field Type: \`"select"\`, Options: \`["Male", "Female", "Other"]\`, Required: \`true\`
-
-### Example JSON Output:
-{
-  "formTitle": "User Registration",
-  "formSubheading": "Please fill out the form to register.",
-  "formFields": [
-    {
-      "fieldName": "firstName",
-      "fieldLabel": "First Name",
-      "placeholder": "Enter your first name",
-      "fieldType": "text",
-      "required": true
-    },
-    {
-      "fieldName": "email",
-      "fieldLabel": "Email Address",
-      "placeholder": "Enter your email address",
-      "fieldType": "email",
-      "required": true
-    },
-    {
-      "fieldName": "gender",
-      "fieldLabel": "Gender",
-      "placeholder": "Select your gender",
-      "fieldType": "select",
-      "options": ["Male", "Female", "Other"],
-      "required": true
-    }
-  ]
-}
-
-Please ensure the output follows the above structure exactly to maintain consistency in the form fields.`;
-
-
+import Link from 'next/link'
 
 export default function CreateForm() {
     const[isOpen,setOpen]=useState(false)
     const[value ,setvalue]=useState();
     const[loading, setloading]=useState(false)
-    const {user}=useUser();
+    const[limitReached, setLimitReached]=useState(false)
     const route=useRouter();
 
     const getValue=async()=>{
         setloading(true);
-       const result= await AiChat.sendMessage("Description:"+value+prompt);
-       if(result.response.text()){
-        const resp=await db.insert(JsonForms)
-        .values({
-          jsonForm:result.response.text(),
-          CreatedBy:user?.primaryEmailAddress?.emailAddress,
-          CreatedAt:moment().format('DD/MM/yyyy')}).returning({id:JsonForms.id})
-        if(resp[0].id){
-          route.push('/edit-form/'+resp[0].id)
+        const res = await fetch('/api/forms/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ description: value }),
+        });
+        const data = await res.json();
+        if (res.status === 403 && data?.error === 'limit_reached') {
+          setLimitReached(true);
+        } else if (data?.id) {
+          route.push('/edit-form/'+data.id)
         }
-        
-       }
-       setloading(false);
+        setloading(false);
     }
- 
+
   return (
     <>
-    <Button onClick={()=>setOpen(true)}>+Create Form</Button>
+    <Button onClick={()=>{setOpen(true); setLimitReached(false);}}>+Create Form</Button>
     <Dialog open={isOpen} >
- 
+
   <DialogContent>
     <DialogHeader>
       <DialogTitle>Write To Create Form?</DialogTitle>
       <DialogDescription>
         <div>
-      <Textarea onChange={(e)=>setvalue(e.target.value)}  placeholder='write description of your form'/>
+      {limitReached ? (
+        <div>
+          <p>You've reached the 3-form limit on the free plan.</p>
+          <Link href='/dashboard/upgrade' className='text-primary underline'>Upgrade to create more forms</Link>
+        </div>
+      ) : (
+        <Textarea onChange={(e)=>setvalue(e.target.value)}  placeholder='write description of your form'/>
+      )}
         <div className='py-2  gap-2 flex'>
         <Button variant="destructive" onClick={()=>setOpen(false)}>Cancel</Button>
+        {!limitReached &&
         <Button disabled={loading} onClick={getValue}>{loading ? <Loader2 className='animate-spin' /> : 'Create'}</Button>
+        }
         </div>
       </div>
       </DialogDescription>
