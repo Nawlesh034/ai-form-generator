@@ -80,10 +80,16 @@ export default function SideNav() {
     {menu.name}</Link>))}</div>
     <div className='fixed  bottom-10 p-4 w-64'>
         <Button className="">+ Create Form</Button>
-        <div className='my-4 mr-4 '> 
-        <Progress value={Percentage} />
-        <h2 className='text-sm mt-2 text-gray-800'><strong className=''>{formList?.length}</strong> Out of <strong>3</strong> File Created</h2>
-        <h2 className='text-sm mt-2 text-gray-800'>Upgrade your plan for unlimted AI form build</h2>
+        <div className='my-4 mr-4 '>
+        {user?.publicMetadata?.plan === 'paid' ? (
+          <h2 className='text-sm mt-2 text-gray-800 font-semibold'>Unlimited plan</h2>
+        ) : (
+          <>
+          <Progress value={Percentage} />
+          <h2 className='text-sm mt-2 text-gray-800'><strong className=''>{formList?.length}</strong> Out of <strong>3</strong> File Created</h2>
+          <h2 className='text-sm mt-2 text-gray-800'>Upgrade your plan for unlimted AI form build</h2>
+          </>
+        )}
         </div>
     </div>
     </div>
