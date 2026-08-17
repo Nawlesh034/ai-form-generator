@@ -62,35 +62,44 @@ export async function POST(req) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });
   }
 
-  const user = await currentUser();
-  const email = user?.primaryEmailAddress?.emailAddress;
-  const plan = user?.publicMetadata?.plan;
-
-  const existing = await db.select().from(JsonForms).where(eq(JsonForms.CreatedBy, email));
-
-  if (shouldBlockFormCreation(plan, existing.length)) {
-    return NextResponse.json({ error: "limit_reached" }, { status: 403 });
-  }
-
-  const body = await req.json();
-  const description = body?.description;
-  if (!description) {
-    return NextResponse.json({ error: "No description provided" }, { status: 400 });
-  }
-
-  let jsonForm;
   try {
-    jsonForm = await generateFormJson("Description:" + description + PROMPT_TEMPLATE);
+    const user = await currentUser();
+    const email = user?.primaryEmailAddress?.emailAddress;
+    const plan = user?.publicMetadata?.plan;
+
+    if (!email) {
+      return NextResponse.json({ error: "No verified email on account" }, { status: 400 });
+    }
+
+    const existing = await db.select().from(JsonForms).where(eq(JsonForms.CreatedBy, email));
+
+    if (shouldBlockFormCreation(plan, existing.length)) {
+      return NextResponse.json({ error: "limit_reached" }, { status: 403 });
+    }
+
+    const body = await req.json();
+    const description = body?.description;
+    if (!description) {
+      return NextResponse.json({ error: "No description provided" }, { status: 400 });
+    }
+
+    let jsonForm;
+    try {
+      jsonForm = await generateFormJson("Description:" + description + PROMPT_TEMPLATE);
+    } catch (err) {
+      console.error("Form generation error:", err);
+      return NextResponse.json({ error: err?.message || "AI generation failed" }, { status: 500 });
+    }
+
+    const inserted = await db.insert(JsonForms).values({
+      jsonForm,
+      CreatedBy: email,
+      CreatedAt: moment().format('DD/MM/yyyy'),
+    }).returning({ id: JsonForms.id });
+
+    return NextResponse.json({ id: inserted[0].id });
   } catch (err) {
-    console.error("Form generation error:", err);
-    return NextResponse.json({ error: err?.message || "AI generation failed" }, { status: 500 });
+    console.error("Form creation error:", err);
+    return NextResponse.json({ error: err?.message || "Could not create form" }, { status: 500 });
   }
-
-  const inserted = await db.insert(JsonForms).values({
-    jsonForm,
-    CreatedBy: email,
-    CreatedAt: moment().format('DD/MM/yyyy'),
-  }).returning({ id: JsonForms.id });
-
-  return NextResponse.json({ id: inserted[0].id });
 }
