@@ -15,7 +15,7 @@ function Upgrade() {
         user?.reload();
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchParams]);
+    }, [searchParams, user?.id]);
 
     const startCheckout = async (priceId) => {
       setLoadingPriceId(priceId);
