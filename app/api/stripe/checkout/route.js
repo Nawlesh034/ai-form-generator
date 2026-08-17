@@ -13,17 +13,18 @@ export async function POST(req) {
     return NextResponse.json({ error: "Server config error: STRIPE_SECRET_KEY missing" }, { status: 500 });
   }
 
-  const body = await req.json();
-  const priceId = body?.priceId;
-  if (!priceId) {
-    return NextResponse.json({ error: "No priceId provided" }, { status: 400 });
-  }
-
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-  const user = await currentUser();
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
   try {
+    const body = await req.json();
+    const priceId = body?.priceId;
+    if (!priceId) {
+      return NextResponse.json({ error: "No priceId provided" }, { status: 400 });
+    }
+
+    const user = await currentUser();
+
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
