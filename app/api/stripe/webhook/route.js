@@ -34,10 +34,15 @@ export async function POST(req) {
       console.warn(`Stripe subscription ${subscription.id} has no clerkUserId metadata`);
     } else {
       const plan = ["active", "trialing"].includes(subscription.status) ? "paid" : "free";
-      const client = await clerkClient();
-      await client.users.updateUserMetadata(clerkUserId, {
-        publicMetadata: { plan },
-      });
+      try {
+        const client = await clerkClient();
+        await client.users.updateUserMetadata(clerkUserId, {
+          publicMetadata: { plan },
+        });
+      } catch (err) {
+        console.error(`Stripe webhook: failed to sync plan for clerkUserId=${clerkUserId}, subscription=${subscription.id}:`, err);
+        return NextResponse.json({ error: "Clerk update failed" }, { status: 500 });
+      }
     }
   }
 
