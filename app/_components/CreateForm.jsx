@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
+import { toast } from 'sonner'
 
 export default function CreateForm() {
     const[isOpen,setOpen]=useState(false)
@@ -22,18 +23,25 @@ export default function CreateForm() {
 
     const getValue=async()=>{
         setloading(true);
-        const res = await fetch('/api/forms/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ description: value }),
-        });
-        const data = await res.json();
-        if (res.status === 403 && data?.error === 'limit_reached') {
-          setLimitReached(true);
-        } else if (data?.id) {
-          route.push('/edit-form/'+data.id)
+        try {
+          const res = await fetch('/api/forms/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ description: value }),
+          });
+          const data = await res.json();
+          if (res.status === 403 && data?.error === 'limit_reached') {
+            setLimitReached(true);
+          } else if (data?.id) {
+            route.push('/edit-form/'+data.id)
+          } else {
+            toast.error(data?.error || 'Could not create form. Please try again.');
+          }
+        } catch (err) {
+          toast.error('Something went wrong. Please check your connection and try again.');
+        } finally {
+          setloading(false);
         }
-        setloading(false);
     }
 
   return (
