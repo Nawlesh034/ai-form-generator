@@ -11,9 +11,21 @@ function Upgrade() {
     const [loadingPriceId, setLoadingPriceId] = useState(null);
 
     useEffect(() => {
-      if (searchParams.get('success') === 'true') {
-        user?.reload();
-      }
+      if (searchParams.get('success') !== 'true' || !user) return;
+
+      let cancelled = false;
+
+      const pollForPlanUpdate = async () => {
+        for (let attempt = 0; attempt < 3 && !cancelled; attempt++) {
+          await user.reload();
+          if (user.publicMetadata?.plan === 'paid') break;
+          if (attempt < 2) await new Promise((resolve) => setTimeout(resolve, 1500));
+        }
+      };
+
+      pollForPlanUpdate();
+
+      return () => { cancelled = true; };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchParams, user?.id]);
 

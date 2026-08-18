@@ -33,8 +33,8 @@ export async function POST(req) {
       subscription_data: {
         metadata: { clerkUserId: userId },
       },
-      success_url: `${baseUrl}dashboard/upgrade?success=true`,
-      cancel_url: `${baseUrl}dashboard/upgrade?canceled=true`,
+      success_url: new URL('dashboard/upgrade?success=true', baseUrl).toString(),
+      cancel_url: new URL('dashboard/upgrade?canceled=true', baseUrl).toString(),
     });
 
     return NextResponse.json({ url: session.url });
