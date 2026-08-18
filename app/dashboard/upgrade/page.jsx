@@ -21,6 +21,12 @@ function Upgrade() {
           if (user.publicMetadata?.plan === 'paid') break;
           if (attempt < 2) await new Promise((resolve) => setTimeout(resolve, 1500));
         }
+        if (cancelled) return;
+        if (user.publicMetadata?.plan === 'paid') {
+          toast.success('Your plan has been activated!');
+        } else {
+          toast('Payment received — activating your plan. This can take a few seconds; refresh if it doesn\'t update.');
+        }
       };
 
       pollForPlanUpdate();
