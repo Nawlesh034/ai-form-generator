@@ -1,15 +1,60 @@
 "use client"
 import PricingPlan from '@/app/_data/PricingPlan'
 import { useUser } from '@clerk/nextjs';
-import React from 'react'
+import { useSearchParams } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 function Upgrade() {
-    const {user}=useUser();
+    const { user } = useUser();
+    const searchParams = useSearchParams();
+    const [loadingPriceId, setLoadingPriceId] = useState(null);
+
+    useEffect(() => {
+      if (searchParams.get('success') !== 'true' || !user) return;
+
+      let cancelled = false;
+
+      const pollForPlanUpdate = async () => {
+        for (let attempt = 0; attempt < 3 && !cancelled; attempt++) {
+          await user.reload();
+          if (user.publicMetadata?.plan === 'paid') break;
+          if (attempt < 2) await new Promise((resolve) => setTimeout(resolve, 1500));
+        }
+      };
+
+      pollForPlanUpdate();
+
+      return () => { cancelled = true; };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams, user?.id]);
+
+    const startCheckout = async (priceId) => {
+      setLoadingPriceId(priceId);
+      try {
+        const res = await fetch('/api/stripe/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ priceId }),
+        });
+        const data = await res.json();
+        if (data?.url) {
+          window.location.href = data.url;
+          return;
+        }
+        toast.error(data?.error || 'Could not start checkout. Please try again.');
+        setLoadingPriceId(null);
+      } catch (err) {
+        toast.error('Something went wrong. Please check your connection and try again.');
+        setLoadingPriceId(null);
+      }
+    };
+
   return (
     <div className='px-4'>
      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-center md:gap-8">
-   {PricingPlan.map((item,inde)=>(<div className="rounded-2xl border border-gray-200 p-6 shadow-sm sm:px-8 lg:p-12">
+   {PricingPlan.map((item)=>(<div key={item.priceId} className="rounded-2xl border border-gray-200 p-6 shadow-sm sm:px-8 lg:p-12">
       <div className="text-center">
         <h2 className="text-lg font-medium text-gray-900">
           {item.duration}
@@ -85,16 +130,16 @@ function Upgrade() {
         </li>
       </ul>
 
-      <a
-        href={item.link+'?prefilled_email='+user?.primaryEmailAddress?.emailAddress}
-        target='_blank'
-        className="mt-8 block rounded-full border border-indigo-600 bg-white px-12 py-3 text-center text-sm font-medium text-indigo-600 hover:ring-1 hover:ring-indigo-600 focus:outline-none focus:ring active:text-indigo-500"
+      <button
+        onClick={() => startCheckout(item.priceId)}
+        disabled={loadingPriceId === item.priceId}
+        className="mt-8 block w-full rounded-full border border-indigo-600 bg-white px-12 py-3 text-center text-sm font-medium text-indigo-600 hover:ring-1 hover:ring-indigo-600 focus:outline-none focus:ring active:text-indigo-500 disabled:opacity-50"
       >
-        Get Started
-      </a>
+        {loadingPriceId === item.priceId ? 'Redirecting…' : 'Get Started'}
+      </button>
     </div>))}
 
-    
+
   </div>
 </div>
     </div>
