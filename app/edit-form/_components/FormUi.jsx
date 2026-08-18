@@ -154,7 +154,7 @@ function FormUi({jsonform,selectedTheme,onFieldUpdate,deleteField,editable=true,
   ))
 ) : (
   <div>No form data available</div>
-)}{!enableSignIn? <button className='btn btn-primary' type='submit'>Submit</button>:isSignedIn?<button className='btn btn-primary' type='submit'>Submit</button>  :<Button><SignInButton mode='modal'>Sign In Before Submit</SignInButton></Button>}
+)}{!enableSignIn? <button className='btn btn-primary' type='submit'>Submit</button>:isSignedIn?<button className='btn btn-primary' type='submit'>Submit</button>  :<SignInButton mode='modal'><Button>Sign In Before Submit</Button></SignInButton>}
 
     </form>
   )
