@@ -56,9 +56,17 @@ function Upgrade() {
       }
     };
 
+  const isPaid = user?.publicMetadata?.plan === 'paid';
+
   return (
     <div className='px-4'>
      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+  <div className='mb-6 border shadow-sm rounded-lg p-4 flex items-center justify-between'>
+    <span className='text-sm text-gray-600'>Current plan</span>
+    <span className={`text-sm font-semibold ${isPaid ? 'text-green-600' : 'text-gray-800'}`}>
+      {isPaid ? 'Unlimited (Paid)' : 'Free'}
+    </span>
+  </div>
   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-center md:gap-8">
    {PricingPlan.map((item)=>(<div key={item.priceId} className="rounded-2xl border border-gray-200 p-6 shadow-sm sm:px-8 lg:p-12">
       <div className="text-center">
