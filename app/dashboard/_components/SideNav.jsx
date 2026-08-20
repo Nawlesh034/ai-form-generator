@@ -11,7 +11,7 @@ import { usePathname } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { extractJson } from '@/lib/utils'
 
-export default function SideNav() {
+export default function SideNav({ onNavigate }) {
     const menuList=[
         {
             id:1,
@@ -76,7 +76,7 @@ export default function SideNav() {
        user&& getFormList();
     },[user])
   return (
-    <div className='h-screen shadow-md border p-5 '><div>{menuList.map((menu,index)=>(<Link href={menu.path} key={index} className={`flex items-center gap-3 p-3 mb-3 hover:bg-primary hover:text-white rounded-lg cursor-pointer  ${path==menu.path?"bg-primary text-white":"text-gray-400"} `}><menu.icon/>
+    <div className='h-screen shadow-md border p-5 bg-white'><div>{menuList.map((menu,index)=>(<Link href={menu.path} key={index} onClick={onNavigate} className={`flex items-center gap-3 p-3 mb-3 hover:bg-primary hover:text-white rounded-lg cursor-pointer  ${path==menu.path?"bg-primary text-white":"text-gray-400"} `}><menu.icon/>
     {menu.name}</Link>))}</div>
     <div className='fixed  bottom-10 p-4 w-64'>
         <Button className="">+ Create Form</Button>
