@@ -41,7 +41,7 @@ function Responses() {
   return (
     <div  className=' font-semibold font-serif text-3xl p-10 ' >Responses
     
-    <div className='grid grid-cols-2 lg:grid-cols-3'>
+    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'>
         {formList&&formList?.map((form,index)=>(
             <FormListResponse
             key={index}

@@ -41,7 +41,7 @@ function FormList() {
        user&& getFormList();
     },[user])
   return (
-    <div className='mt-5 grid grid-cols-2 md:grid-cols-3 gap-2'>{formList.map((form,index)=>(<div key={index}>
+    <div className='mt-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2'>{formList.map((form,index)=>(<div key={index}>
         <FormListItem form={form.jsonForm} id={form} refreshData={getFormList} />
     </div>))}</div>
   )
