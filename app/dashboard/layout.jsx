@@ -1,17 +1,26 @@
 "use client"
 import { SignedIn } from '@clerk/nextjs'
 import { Menu } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import SideNav from './_components/SideNav'
 
 function layout({children}) {
     const [isOpen, setIsOpen] = useState(false)
 
+    useEffect(() => {
+      if (!isOpen) return;
+      const handleKeyDown = (e) => {
+        if (e.key === 'Escape') setIsOpen(false);
+      };
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen]);
+
     return (
     <SignedIn>
         <div>
             <div className='md:hidden flex items-center p-4 border-b'>
-                <button onClick={() => setIsOpen(true)} aria-label='Open menu'>
+                <button onClick={() => setIsOpen(true)} aria-label='Open menu' aria-expanded={isOpen}>
                     <Menu />
                 </button>
             </div>
