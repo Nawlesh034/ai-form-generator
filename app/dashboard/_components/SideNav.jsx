@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { extractJson } from '@/lib/utils'
+import { FREE_FORM_LIMIT } from '@/app/_data/PricingPlan'
 
 export default function SideNav({ onNavigate }) {
     const menuList=[
@@ -37,7 +38,7 @@ export default function SideNav({ onNavigate }) {
             icon:Plus,
             path:'/dashboard/upgrade'
         },
-       
+
     ]
     const {user}=useUser();
     const path =usePathname();
@@ -45,15 +46,15 @@ export default function SideNav({ onNavigate }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [Percentage,setPercentage]=useState(0)
+    const limit = user?.publicMetadata?.formLimit ?? FREE_FORM_LIMIT;
 
     const getFormList = async () => {
         try {
             const result = await db.select().from(JsonForms)
                 .where(eq(JsonForms.CreatedBy, user?.primaryEmailAddress?.emailAddress))
                 .orderBy(desc(JsonForms.id));
-                
-            const perc=(result.length/3)*100;
-            // console.log(perc)
+
+            const perc=(result.length/limit)*100;
             setPercentage(perc)
 
             const cleanedForms = result.map(form => {
@@ -81,14 +82,10 @@ export default function SideNav({ onNavigate }) {
     <div className='fixed  bottom-10 p-4 w-64'>
         <Button className="">+ Create Form</Button>
         <div className='my-4 mr-4 '>
-        {user?.publicMetadata?.plan === 'paid' ? (
-          <h2 className='text-sm mt-2 text-gray-800 font-semibold'>Unlimited plan</h2>
-        ) : (
-          <>
-          <Progress value={Percentage} />
-          <h2 className='text-sm mt-2 text-gray-800'><strong className=''>{formList?.length}</strong> Out of <strong>3</strong> File Created</h2>
+        <Progress value={Percentage} />
+        <h2 className='text-sm mt-2 text-gray-800'><strong className=''>{formList?.length}</strong> Out of <strong>{limit}</strong> File Created</h2>
+        {user?.publicMetadata?.plan !== 'paid' && (
           <h2 className='text-sm mt-2 text-gray-800'>Upgrade your plan for unlimted AI form build</h2>
-          </>
         )}
         </div>
     </div>
