@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { clerkClient } from "@clerk/nextjs/server";
 import Stripe from "stripe";
+import PricingPlan, { FREE_FORM_LIMIT } from "@/app/_data/PricingPlan";
 
 const SUBSCRIPTION_EVENTS = [
   "customer.subscription.created",
@@ -33,11 +34,17 @@ export async function POST(req) {
     if (!clerkUserId) {
       console.warn(`Stripe subscription ${subscription.id} has no clerkUserId metadata`);
     } else {
-      const plan = ["active", "trialing"].includes(subscription.status) ? "paid" : "free";
+      const isActive = ["active", "trialing"].includes(subscription.status);
+      const purchasedPriceId = subscription.items?.data?.[0]?.price?.id;
+      const matchedPlan = PricingPlan.find((p) => p.priceId === purchasedPriceId);
+
+      const plan = isActive && matchedPlan ? "paid" : "free";
+      const formLimit = isActive && matchedPlan ? matchedPlan.formLimit : FREE_FORM_LIMIT;
+
       try {
         const client = await clerkClient();
         await client.users.updateUserMetadata(clerkUserId, {
-          publicMetadata: { plan },
+          publicMetadata: { plan, formLimit },
         });
       } catch (err) {
         console.error(`Stripe webhook: failed to sync plan for clerkUserId=${clerkUserId}, subscription=${subscription.id}:`, err);
