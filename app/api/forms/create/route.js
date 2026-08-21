@@ -7,6 +7,7 @@ import { db } from "@/config";
 import { JsonForms } from "@/config/schema";
 import { generateFormJson } from "@/lib/gemini";
 import { shouldBlockFormCreation } from "@/lib/planLimit.mjs";
+import { FREE_FORM_LIMIT } from "@/app/_data/PricingPlan";
 
 const PROMPT_TEMPLATE = `Please provide a form in JSON format based on the following structure:
 - **formTitle**: The title of the form (e.g., "User Registration")
@@ -65,7 +66,7 @@ export async function POST(req) {
   try {
     const user = await currentUser();
     const email = user?.primaryEmailAddress?.emailAddress;
-    const plan = user?.publicMetadata?.plan;
+    const limit = user?.publicMetadata?.formLimit ?? FREE_FORM_LIMIT;
 
     if (!email) {
       return NextResponse.json({ error: "No verified email on account" }, { status: 400 });
@@ -73,7 +74,7 @@ export async function POST(req) {
 
     const existing = await db.select().from(JsonForms).where(eq(JsonForms.CreatedBy, email));
 
-    if (shouldBlockFormCreation(plan, existing.length)) {
+    if (shouldBlockFormCreation(limit, existing.length)) {
       return NextResponse.json({ error: "limit_reached" }, { status: 403 });
     }
 
