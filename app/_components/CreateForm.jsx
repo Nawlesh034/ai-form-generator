@@ -47,7 +47,7 @@ export default function CreateForm() {
   return (
     <>
     <Button onClick={()=>{setOpen(true); setLimitReached(false);}}>+Create Form</Button>
-    <Dialog open={isOpen} >
+    <Dialog open={isOpen} onOpenChange={setOpen}>
 
   <DialogContent>
     <DialogHeader>
