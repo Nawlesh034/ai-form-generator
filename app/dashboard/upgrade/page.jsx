@@ -43,7 +43,9 @@ function Upgrade() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ priceId }),
         });
+        console.log(res,"response on money")
         const data = await res.json();
+        console.log(data,"data on money page")
         if (data?.url) {
           window.location.href = data.url;
           return;
@@ -57,6 +59,7 @@ function Upgrade() {
     };
 
   const isPaid = user?.publicMetadata?.plan === 'paid';
+  console.log(isPaid,"money")
 
   return (
     <div className='px-4'>
@@ -64,7 +67,7 @@ function Upgrade() {
   <div className='mb-6 border shadow-sm rounded-lg p-4 flex items-center justify-between'>
     <span className='text-sm text-gray-600'>Current plan</span>
     <span className={`text-sm font-semibold ${isPaid ? 'text-green-600' : 'text-gray-800'}`}>
-      {isPaid ? 'Unlimited (Paid)' : 'Free'}
+      {isPaid ? `${user.publicMetadata.formLimit} Forms Paid Plan` : 'Free'}
     </span>
   </div>
   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-center md:gap-8">
@@ -80,69 +83,10 @@ function Upgrade() {
 
           <span className="text-sm font-medium text-gray-700">{item.duration}</span>
         </p>
+        <p className="font-medium ">{item.formLimit} Forms</p>
       </div>
 
-      <ul className="mt-6 space-y-2">
-        <li className="flex items-center gap-1">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="currentColor"
-            className="size-5 text-indigo-700"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-          </svg>
-
-          <span className="text-gray-700"> 10 users included </span>
-        </li>
-
-        <li className="flex items-center gap-1">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="currentColor"
-            className="size-5 text-indigo-700"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-          </svg>
-
-          <span className="text-gray-700"> 2GB of storage </span>
-        </li>
-
-        <li className="flex items-center gap-1">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="currentColor"
-            className="size-5 text-indigo-700"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-          </svg>
-
-          <span className="text-gray-700"> Email support </span>
-        </li>
-
-        <li className="flex items-center gap-1">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="currentColor"
-            className="size-5 text-indigo-700"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-          </svg>
-
-          <span className="text-gray-700"> Help center access </span>
-        </li>
-      </ul>
+     
 
       <button
         onClick={() => startCheckout(item.priceId)}
