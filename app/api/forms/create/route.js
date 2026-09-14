@@ -73,6 +73,7 @@ export async function POST(req) {
     }
 
     const existing = await db.select().from(JsonForms).where(eq(JsonForms.CreatedBy, email));
+    console.log(existing)
 
     if (shouldBlockFormCreation(limit, existing.length)) {
       return NextResponse.json({ error: "limit_reached" }, { status: 403 });
