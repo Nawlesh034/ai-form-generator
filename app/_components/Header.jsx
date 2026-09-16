@@ -19,7 +19,7 @@ function Header() {
             <Image src={'/screen.png'} width={50} height={50} alt='logo' />
             <div className='flex items-center gap-5'>
               {path !== "/" && <BackButton />}
-          <ThemeToggle/>
+          {/* <ThemeToggle/> */}
       
         {isSignedIn?<div className='flex items-center gap-5'><Link href={'/dashboard'}><Button variant='outline' >Dashboard</Button></Link><UserButton/></div>:<SignInButton><Button>Get Started</Button></SignInButton>}
         </div>
